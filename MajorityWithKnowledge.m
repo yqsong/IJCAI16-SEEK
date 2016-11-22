@@ -6,6 +6,7 @@ TOL =1e-6;
 Ntask = model.Ntask; 
 Nwork = model.Nwork;
 Ndom = model.Ndom;
+L = model.L;
 NeibTask = model.NeibTask; 
 NeibWork = model.NeibWork;
 LabelTask = model.LabelTask;
@@ -67,7 +68,7 @@ for iter = 1:maxIter
             ans_labels(task_j)=maxIndex(1);
         else
             ans_labels(task_j)=LabelDomain(unidrnd(Ndom));
-            no_ans_labels=[no_ans_labels tasks_j];%没有人做task_j；
+            no_ans_labels=[no_ans_labels task_j];%没有人做task_j；
         end
         LabelTaskScore{task_j}.labelList = count(:,1);
         LabelTaskScore{task_j}.score = count(:,2);
@@ -81,11 +82,41 @@ for iter = 1:maxIter
         end
         Ability_new(work_i) = tem/length(Taski);
     end
-    err = norm(Ability_new-Ability)
+    err = norm(Ability_new-Ability);
     Ability  = Ability_new;
 end
-result.Ability=Ability
+Simplicity=zeros(1,Ntask);
+for task_j=1:Ntask
+    count=0;
+    total=0;
+    for i=1:length(NeibTask{task_j})
+        work_i=NeibTask{task_j}(i);
+        total=total+1;
+        if L(task_j,work_i) == ans_labels(task_j)
+            count=count+1;
+        end
+    end
+    Simplicity(task_j)=count/total;
+end
+% Ability = zeros(1, Nwork);
+% for work_i = 1:Nwork
+%     count = 0;
+%     total = 0;
+%     for j = 1:length(NeibTask{work_i});
+%         task_j = NeibTask{work_i}(j);
+%         total = total + 1;
+% %         if L(task_j, work_i) == model.true_labels(task_j)
+%         if L(task_j, work_i) == ans_labels(task_j)
+%             count = count + 1;
+%         end
+%     end
+%     Ability(work_i) = count/total;
+% end
+
+   
 result.ans_labels=ans_labels;
+result.Ability=Ability;
+result.Simplicity=Simplicity;
 result.no_ans_labels=no_ans_labels;
 result.ans_multiRangeIndex=ans_multiRangeIndex;
 result.soft_labels=soft_labels;
@@ -94,6 +125,6 @@ result.accuracy=[];
 if ~isempty(model.true_labels)
     result.accuracy=sum(~(ans_labels-model.true_labels))/Ntask;
 end
-
 end
+
 

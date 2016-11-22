@@ -20,6 +20,12 @@ for task_j = 1:Ntask,
     LabelTask{task_j} = L(task_j, NeibTask{task_j}); % the labels of the same task should have the same dimension
 end
 
+LjDomain=cell(1,Ntask);
+
+for task_j=1:Ntask
+    LjDomain{task_j} = unique(LabelTask{task_j});
+end
+
 LabelWork=cell(Nwork,1);
 for work_i = 1:Nwork, 
     LabelWork{work_i} = L(NeibWork{work_i},work_i)'; % the labels of the same task should have the same dimension
@@ -31,7 +37,7 @@ model.Ndom = length(LabelDomain);
 
 model.LabelTask=LabelTask;
 model.LabelWork=LabelWork;
-
+model.LjDomain=LjDomain;
 model.Ntask = Ntask;
 model.Nwork = Nwork;
 model.NeibTask = NeibTask;
@@ -48,6 +54,7 @@ function model = init_model()
 
               model.L= [];       %: [5000x5000 double]
       model.LabelTask= [];       %: {1x5000 cell}
+       model.LjDomain= [];
       model.LabelWork= [];       %: {1x5000 cell}
     model.LabelDomain= [];       %: [1 2]
           model.Ntask= [];       %: 5000
