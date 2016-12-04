@@ -6,6 +6,7 @@ TOL =1e-6;
 Ntask = model.Ntask; 
 Nwork = model.Nwork;
 Ndom = model.Ndom;
+L = model.L;
 NeibTask = model.NeibTask; 
 NeibWork = model.NeibWork;
 LabelTask = model.LabelTask;
@@ -74,8 +75,22 @@ for iter = 1:maxIter
     err = norm(Ability_new-Ability);
     Ability  = Ability_new;
 end
+Simplicity=zeros(1,Ntask);
+for task_j=1:Ntask
+    count=0;
+    total=0;
+    for i=1:length(NeibTask{task_j});
+        work_i=NeibTask{task_j}(i);
+        total=total+1;
+        if L(task_j,work_i)==ans_labels(task_j)
+            count=count+1;
+        end
+    end
+    Simplicity(task_j)=count/total;
+end
 
 result.ans_labels=ans_labels;
+result.Simplicity=Simplicity;
 result.no_ans_labels=no_ans_labels;
 result.ans_multiRangeIndex=ans_multiRangeIndex;
 result.soft_labels=soft_labels;
